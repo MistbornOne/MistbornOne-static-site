@@ -2,7 +2,7 @@ from textnode import *
 
 
 def main():
-    new_node = TextNode("Some Test Text", InlineText.LINKS, "https://ianwatkins.dev")
+    new_node = TextNode("Some Test Text", TextType.LINKS, "https://ianwatkins.dev")
     print(new_node)
 
 

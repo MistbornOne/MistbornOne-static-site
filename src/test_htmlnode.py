@@ -147,5 +147,36 @@ class TestParentNode(unittest.TestCase):
         self.assertRaises(ValueError, node.to_html)
 
 
+class TestTextToHTML(unittest.TestCase):
+
+    def test_text_to_html(self):
+        node = LeafNode(None, "Just some text")
+        self.assertEqual(node.to_html(), "Just some text")
+
+    def test_text_with_special_characters(self):
+        node = LeafNode(None, "Text with <special> & characters")
+        self.assertEqual(node.to_html(), "Text with <special> & characters")
+
+    def test_text_with_empty_string(self):
+        node = LeafNode(None, "")
+        self.assertEqual(node.to_html(), "")
+
+    def test_bold_text(self):
+        node = LeafNode("b", "Bold text")
+        self.assertEqual(node.to_html(), "<b>Bold text</b>")
+
+    def test_italic_text(self):
+        node = LeafNode("i", "Italic text")
+        self.assertEqual(node.to_html(), "<i>Italic text</i>")
+
+    def test_text_with_newline(self):
+        node = LeafNode(None, "Text with\nnew line")
+        self.assertEqual(node.to_html(), "Text with\nnew line")
+
+    def test_code_text(self):
+        node = LeafNode("code", "Code snippet")
+        self.assertEqual(node.to_html(), "<code>Code snippet</code>")
+
+
 if __name__ == "__main__":
     unittest.main()
