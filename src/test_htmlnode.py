@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -89,6 +89,62 @@ class TestLeafNode(unittest.TestCase):
         node = LeafNode("a", "Link text", {"href": "https://example.com"})
         expected = "HTMLNode(a, Link text, None, {'href': 'https://example.com'})"
         self.assertEqual(repr(node), expected)
+
+
+class TestParentNode(unittest.TestCase):
+
+    def test_parent_node_repr(self):
+        node = HTMLNode(
+            tag="div", value="Parent Node", children=None, props={"id": "parent"}
+        )
+        expected = "HTMLNode(div, Parent Node, None, {'id': 'parent'})"
+        self.assertEqual(repr(node), expected)
+
+    def test_parent_node_to_html_not_implemented(self):
+        node = HTMLNode()
+        with self.assertRaises(NotImplementedError):
+            node.to_html()
+
+    def test_to_html_with_children(self):
+        child1 = LeafNode("p", "Child 1")
+        child2 = LeafNode("p", "Child 2")
+        parent = ParentNode(tag="div", children=[child1, child2])
+        expected = "<div><p>Child 1</p><p>Child 2</p></div>"
+        self.assertEqual(parent.to_html(), expected)
+
+    def test_to_html_with_grandchildren(self):
+        grandchild = LeafNode("span", "Grandchild")
+        child = ParentNode(tag="div", children=[grandchild])
+        parent = ParentNode(tag="section", children=[child])
+        expected = "<section><div><span>Grandchild</span></div></section>"
+        self.assertEqual(parent.to_html(), expected)
+
+    def test_to_html_with_nested_parents(self):
+        child1 = LeafNode("p", "Child 1")
+        child2 = LeafNode("p", "Child 2")
+        parent1 = ParentNode(tag="div", children=[child1])
+        parent2 = ParentNode(tag="section", children=[parent1, child2])
+        expected = "<section><div><p>Child 1</p></div><p>Child 2</p></section>"
+        self.assertEqual(parent2.to_html(), expected)
+
+    def test_grandchild_has_no_tag(self):
+        grandchild = LeafNode(None, "Grandchild with no tag")
+        child = ParentNode(tag="div", children=[grandchild])
+        parent = ParentNode(tag="section", children=[child])
+        expected = "<section><div>Grandchild with no tag</div></section>"
+        self.assertEqual(parent.to_html(), expected)
+
+    def test_to_html_with_great_grandchildren(self):
+        great_grandchild = LeafNode("span", "Great Grandchild")
+        grandchild = ParentNode(tag="div", children=[great_grandchild])
+        child = ParentNode(tag="section", children=[grandchild])
+        parent = ParentNode(tag="article", children=[child])
+        expected = "<article><section><div><span>Great Grandchild</span></div></section></article>"
+        self.assertEqual(parent.to_html(), expected)
+
+    def test_for_empty_children(self):
+        node = ParentNode(tag="div", children=[])
+        self.assertRaises(ValueError, node.to_html)
 
 
 if __name__ == "__main__":
