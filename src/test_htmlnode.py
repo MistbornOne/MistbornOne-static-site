@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode, LeafNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -53,6 +53,42 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode()
         with self.assertRaises(NotImplementedError):
             node.to_html()
+
+
+class TestLeafNode(unittest.TestCase):
+
+    def test_leaf_to_html_p(self):
+        node = LeafNode("p", "Hello, world!")
+        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
+
+    def test_to_html_no_tag_raw_text(self):
+        node = LeafNode(None, "Just some raw text")
+        expected = "Just some raw text"
+        self.assertEqual(node.to_html(), expected)
+
+    def test_to_html_empty_string_value(self):
+        # Empty string is still a valid value
+        node = LeafNode("p", "")
+        expected = "<p></p>"
+        self.assertEqual(node.to_html(), expected)
+
+    def test_to_html_with_special_characters(self):
+        node = LeafNode("p", "Text with <special> & characters")
+        expected = "<p>Text with <special> & characters</p>"
+        self.assertEqual(node.to_html(), expected)
+
+    def test_inheritance_from_htmlnode(self):
+        # Test that LeafNode properly inherits from HTMLNode
+        node = LeafNode("span", "Test", {"class": "test"})
+        self.assertIsNone(node.children)  # Should always be None for leaf nodes
+        self.assertEqual(node.tag, "span")
+        self.assertEqual(node.value, "Test")
+        self.assertEqual(node.props, {"class": "test"})
+
+    def test_repr(self):
+        node = LeafNode("a", "Link text", {"href": "https://example.com"})
+        expected = "HTMLNode(a, Link text, None, {'href': 'https://example.com'})"
+        self.assertEqual(repr(node), expected)
 
 
 if __name__ == "__main__":
